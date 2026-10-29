@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dutchman's Content Calendar</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Brand: charcoal menu-board ground, mustard banners, red stars, white condensed type (from the Dutchman's logo and menu boards).
+   Layout: logo header, page tabs (Calendar / Ideas / Menu / Bands), banner-style section heads. Single dark look by design. */
+:root {
+  --bg: #21201E;
+  --surface: #2A2826;
+  --surface-2: #34312E;
+  --line: #4A4540;
+  --fg: #F7F3EA;
+  --fg-2: #B4ABA0;
+  --gold: #BD930B;
+  --gold-ink: #1B1304;
+  --gold-text: #E2B22A;
+  --red: #CD4C2D;
+  --red-text: #EE6B4C;
+  --sage: #6FB58A;
+  --sky: #6FA3D8;
+  --teal: #4FB3AE;
+  --closed: #9A9187;
+  --today: #3B2A16;
+  --font-display: "Bebas Neue", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Roboto", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--bg); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
+.d { font-family: var(--font-display); font-weight: 400; letter-spacing: .02em; text-transform: uppercase; }
+
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 0 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-block: 18px 14px; }
+.logo { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.logo img { width: clamp(120px, 18vw, 190px); height: auto; display: block; }
+.logo .t { min-width: 0; }
+.logo h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 4.4vw, 52px); line-height: .95; margin: 0; letter-spacing: .03em; text-transform: uppercase; text-wrap: balance; }
+.logo p { margin: 6px 0 0; color: var(--fg-2); font-size: 13.5px; }
+.hours { text-align: right; font-size: 13px; color: var(--fg-2); line-height: 1.55; }
+.hours b { font-family: var(--font-display); font-weight: 400; font-size: 18px; color: var(--gold-text); letter-spacing: .04em; margin-right: 6px; }
+.stars { color: var(--red); letter-spacing: .3em; }
+
+/* page tabs: styled like the menu-board banner */
+.tabs { display: flex; gap: 6px; background: var(--gold); padding: 6px; border-radius: 3px; overflow-x: auto; }
+.tabs button { flex: 1 1 0; min-width: max-content; border: 0; background: transparent; color: var(--gold-ink); font-family: var(--font-display); font-size: 24px; letter-spacing: .06em; padding: 6px 18px 3px; border-radius: 2px; }
+.tabs button[aria-selected="true"] { background: var(--bg); color: var(--fg); }
+.tabs button .s { color: var(--red); margin-right: 6px; font-size: 15px; vertical-align: 2px; }
+
+.bar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; padding: 18px 0 12px; }
+.months { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 4px; border: 1px solid var(--line); }
+.months button { border: 0; background: transparent; padding: 6px 14px 3px; border-radius: 3px; font-family: var(--font-display); font-size: 22px; letter-spacing: .05em; color: var(--fg-2); }
+.months button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 0 -3px 0 var(--red); }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 9px 14px; color: var(--fg-2); font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.btn { border: 0; background: var(--red); color: #fff; font-weight: 700; letter-spacing: .02em; padding: 10px 18px; border-radius: 4px; }
+.btn:hover { filter: brightness(1.1); }
+.btn.gold { background: var(--gold); color: var(--gold-ink); }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.btn.danger { background: transparent; color: var(--red-text); border: 1px solid var(--line); }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+.layers { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 12px; }
+.layer { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 13px 6px 10px; font-size: 13px; font-weight: 500; }
+.layer i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.layer[aria-pressed="false"] { opacity: .45; }
+.layer[aria-pressed="false"] i { background: transparent; box-shadow: inset 0 0 0 2px var(--c); }
+.hint { color: var(--fg-2); font-size: 12.5px; margin: 0 0 12px; }
+
+/* calendar */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 20px; align-items: start; }
+.cal { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: var(--gold); color: var(--gold-ink); }
+.dow div { padding: 7px 10px 4px; font-family: var(--font-display); font-size: 18px; letter-spacing: .08em; }
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.day { min-height: 124px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; display: flex; flex-direction: column; gap: 3px; background: var(--surface); min-width: 0; cursor: pointer; }
+.day:nth-child(7n) { border-right: 0; }
+.day.out { background: var(--bg); }
+.day.out .num { opacity: .35; }
+.day:hover { background: var(--surface-2); }
+.day[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--gold-text); }
+.day.today { background: var(--today); }
+.day.drop { background: var(--surface-2); box-shadow: inset 0 0 0 2px var(--red); }
+.num { font-family: var(--font-display); font-size: 20px; width: 28px; height: 26px; display: grid; place-items: center; border-radius: 3px; letter-spacing: .02em; padding-top: 2px; }
+.today .num { background: var(--red); color: #fff; }
+.chip { display: flex; gap: 5px; align-items: baseline; font-size: 12px; line-height: 1.25; padding: 3px 6px; border-radius: 3px; background: color-mix(in srgb, var(--c) 20%, transparent); border-left: 3px solid var(--c); min-width: 0; }
+.chip.dim { background: transparent; border-left-style: dashed; color: var(--fg-2); }
+.chip.draft { background: transparent; border-left-style: dotted; }
+.chip.closure { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 30%, transparent) 0 6px, color-mix(in srgb, var(--c) 12%, transparent) 6px 12px); font-weight: 700; }
+.chip.mine { cursor: grab; }
+.chip.mine:active { cursor: grabbing; }
+.chip .t { font-size: 10.5px; color: var(--fg-2); flex: none; font-variant-numeric: tabular-nums; }
+.chip .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.more { font-size: 11.5px; color: var(--fg-2); padding-left: 6px; }
+.dots { display: none; gap: 3px; flex-wrap: wrap; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; }
+.panel h2 { font-family: var(--font-display); font-weight: 400; font-size: 40px; line-height: .95; margin: 0; letter-spacing: .03em; text-transform: uppercase; }
+.panel .sub { color: var(--fg-2); font-size: 13px; margin: 6px 0 14px; }
+.items { display: flex; flex-direction: column; gap: 10px; margin: 0 0 14px; padding: 0; list-style: none; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 4px; padding: 10px 12px; background: var(--bg); }
+.item.closure { background: repeating-linear-gradient(135deg, rgba(154,145,135,.12) 0 8px, transparent 8px 16px); }
+.item .top2 { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.item h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.item .time { font-size: 12.5px; color: var(--fg-2); flex: none; font-variant-numeric: tabular-nums; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.tag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; background: color-mix(in srgb, var(--c) 24%, transparent); color: var(--fg); }
+.tag.plain { background: var(--surface-2); color: var(--fg-2); }
+.cap { margin: 8px 0 0; font-size: 13px; color: var(--fg-2); white-space: pre-line; }
+.item .row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.item a { color: var(--gold-text); font-size: 12.5px; }
+.empty { color: var(--fg-2); font-size: 14px; padding: 8px 0 14px; }
+
+/* banner section heads (menu board style) */
+.banner { background: var(--gold); color: var(--gold-ink); text-align: center; padding: 8px 14px 3px; margin: 0 0 18px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.banner h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 4vw, 42px); letter-spacing: .05em; text-transform: uppercase; line-height: 1.05; }
+.banner .st { color: var(--red); font-size: 22px; }
+.banner .pr { font-size: 20px; color: #fff; font-family: var(--font-display); letter-spacing: .04em; }
+.pageintro { text-align: center; color: var(--fg-2); margin: 24px auto 22px; max-width: 640px; font-size: 14px; }
+
+.agenda { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 6px 18px 18px; }
+.agenda h3.dh { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: .05em; margin: 20px 0 8px; color: var(--gold-text); }
+.mhead { font-family: var(--font-display); font-size: 36px; letter-spacing: .05em; margin: 22px 0 0; padding-top: 10px; border-top: 3px solid var(--red); }
+.mhead:first-child { margin-top: 12px; }
+.agenda .items { max-width: 720px; }
+
+/* ideas */
+.ideas { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 22px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px; }
+.card h3 { font-family: var(--font-display); font-weight: 400; font-size: 28px; letter-spacing: .04em; margin: 0 0 4px; text-transform: uppercase; }
+.fchips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.fchips button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.fchips button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.idea { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.idea:first-of-type { border-top: 0; }
+.idea .dt { text-align: center; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 5px 0 3px; }
+.idea .dt b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: .95; }
+.idea .dt span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-text); font-weight: 700; }
+.idea h4 { margin: 0; font-size: 15px; font-weight: 700; }
+.idea p { margin: 2px 0 0; font-size: 13px; color: var(--fg-2); }
+.badge { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 1px 7px; border-radius: 3px; background: var(--surface-2); color: var(--fg-2); margin-right: 6px; }
+.badge.warn { background: rgba(226,178,42,.18); color: var(--gold-text); }
+.mh { font-family: var(--font-display); font-size: 30px; letter-spacing: .05em; margin: 22px 0 2px; color: var(--gold-text); }
+.mh:first-of-type { margin-top: 4px; }
+
+/* menu */
+.menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 40px; }
+.msec { min-width: 0; }
+.msec.wide { grid-column: 1 / -1; }
+.mi { padding: 10px 0; text-align: center; }
+.mi h4 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 26px; letter-spacing: .04em; text-transform: uppercase; line-height: 1.1; }
+.mi h4 small { font-size: 18px; color: var(--fg-2); margin-left: 6px; }
+.mi p { margin: 4px auto 0; max-width: 46ch; font-size: 13.5px; font-weight: 500; }
+.mi.hot h4 { color: var(--gold-text); }
+.msub { text-align: center; font-family: var(--font-display); font-size: 20px; letter-spacing: .06em; margin: -6px 0 6px; color: var(--fg-2); }
+.sides { border: 2px dashed var(--gold); padding: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; text-align: center; font-family: var(--font-display); font-size: 20px; letter-spacing: .04em; margin-top: 14px; }
+.sides .new { color: var(--red-text); outline: 2px dashed var(--red); outline-offset: 4px; }
+.sidehead { text-align: center; font-family: var(--font-display); font-size: 34px; margin: 22px 0 6px; letter-spacing: .05em; }
+.sidehead small { font-size: 22px; color: var(--fg-2); }
+.specials { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 26px; }
+.sp { border: 1px solid var(--line); border-top: 4px solid var(--red); background: var(--surface); padding: 12px 14px; border-radius: 4px; }
+.sp b { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: .05em; color: var(--gold-text); display: block; }
+.sp span { font-size: 13.5px; }
+.fine { text-align: center; color: var(--fg-2); font-size: 12px; margin-top: 26px; }
+.cta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+a.btn { text-decoration: none; display: inline-block; }
+
+/* bands */
+.bandgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+.show { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.show:first-of-type { border-top: 0; }
+.show .dt { text-align: center; background: var(--gold); color: var(--gold-ink); border-radius: 3px; padding: 6px 0 3px; }
+.show .dt b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: .9; }
+.show .dt span { font-family: var(--font-display); font-size: 16px; letter-spacing: .1em; }
+.show h4 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; letter-spacing: .04em; line-height: 1; text-transform: uppercase; }
+.show p { margin: 3px 0 0; color: var(--fg-2); font-size: 13.5px; }
+.show.past { opacity: .6; }
+.show .row { display: flex; gap: 6px; }
+.wk { font-family: var(--font-display); font-size: 20px; letter-spacing: .08em; color: var(--red-text); margin: 18px 0 0; }
+.wk:first-child { margin-top: 0; }
+
+/* modal & form */
+.scrim { position: fixed; inset: 0; background: rgba(8, 7, 6, .72); display: grid; place-items: center; padding: 16px; z-index: 50; }
+.modal { background: var(--surface); border-radius: 6px; width: min(500px, 100%); max-height: 100%; overflow: auto; padding: 22px; border: 1px solid var(--line); border-top: 6px solid var(--gold); }
+.modal h2 { font-family: var(--font-display); font-weight: 400; font-size: 32px; letter-spacing: .04em; margin: 0 0 12px; text-transform: uppercase; }
+.f { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; min-width: 0; }
+.f label { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-2); }
+.f input, .f select, .f textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 9px 11px; width: 100%; min-width: 0; }
+.f textarea { min-height: 70px; resize: vertical; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+.toast { position: fixed; bottom: max(18px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 4px; font-size: 14px; z-index: 60; max-width: calc(100% - 32px); font-weight: 500; }
+.note { font-size: 12.5px; color: var(--fg-2); margin: 0 0 12px; }
+
+@media (max-width: 1000px) {
+  .main, .ideas, .bandgrid { grid-template-columns: minmax(0, 1fr); }
+  .panel { position: static; max-height: none; }
+  .hours { text-align: left; }
+}
+@media (max-width: 700px) {
+  .menu { grid-template-columns: minmax(0, 1fr); }
+  .specials { grid-template-columns: minmax(0, 1fr); }
+  .sides { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .day { min-height: 58px; padding: 4px; align-items: center; }
+  .day .chip, .day .more { display: none; }
+  .dots { display: flex; justify-content: center; }
+  .dow div { padding: 6px 2px 3px; text-align: center; font-size: 14px; letter-spacing: 0; }
+  .num { font-size: 18px; }
+  .months button { padding: 6px 9px 3px; font-size: 19px; }
+  .two { grid-template-columns: 1fr; }
+  .show, .idea { grid-template-columns: 58px minmax(0, 1fr); }
+  .show .row, .idea .act { grid-column: 2; }
+  .tabs button { font-size: 20px; padding: 6px 12px 3px; }
+}
+.prof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.prof .wide { grid-column: 1 / -1; }
+.prow { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); align-items: baseline; font-size: 14px; }
+.prow:first-of-type { border-top: 0; }
+.prow span { color: var(--fg-2); font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.prow b { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.prow em { font-style: normal; color: var(--gold-text); font-size: 13px; }
+.prow a { color: var(--gold-text); }
+@media (max-width: 700px) { .prof { grid-template-columns: minmax(0, 1fr); } .prow { grid-template-columns: 110px minmax(0, 1fr); } .prow em { grid-column: 2; } }
+@media (prefers-reduced-motion: no-preference) {
+  .day, .btn, .layer { transition: background .12s, opacity .12s, filter .12s; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo">
+      <img src="logo.png" alt="Dutchman's Country BBQ, established 2024">
+      <div class="t">
+        <h1>Content <span style="color:var(--gold-text)">Calendar</span></h1>
+        <p><span class="stars">&#9733; &#9733; &#9733;</span>&nbsp; 1615 N Apache Trail, Apache Junction, AZ</p>
+      </div>
+    </div>
+    <div class="hours"><div><b>Sun&ndash;Thu</b>11a &ndash; 8p</div><div><b>Fri&ndash;Sat</b>11a &ndash; 10p</div></div>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Pages"></nav>
+
+  <section id="pg-calendar">
+    <div class="bar">
+      <div class="months" id="months" role="group" aria-label="Month"></div>
+      <div class="actions">
+        <div class="seg" role="group" aria-label="View">
+          <button id="v-cal" aria-pressed="true">Calendar</button>
+          <button id="v-agenda" aria-pressed="false">Agenda</button>
+        </div>
+        <button class="btn" id="add-top">+ Add to calendar</button>
+      </div>
+    </div>
+    <div class="layers" id="layers" role="group" aria-label="Show on calendar"></div>
+    <p class="hint" id="drag-hint">Tip: drag any of your own events, closures or holidays to a new day.</p>
+    <div id="calview" class="main">
+      <section class="cal" aria-label="Month calendar">
+        <div class="dow"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+        <div class="grid" id="grid"></div>
+      </section>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+    <div id="agendaview" class="agenda" hidden></div>
+  </section>
+
+  <section id="pg-ideas" hidden></section>
+  <section id="pg-menu" hidden></section>
+  <section id="pg-bands" hidden></section>
+  <section id="pg-profile" hidden></section>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function () {
+  /* ================= SETUP =================
+     Paste the Google Apps Script web app URL between the quotes (it ends in /exec).
+     Left empty, events save only in each visitor's own browser. */
+  var SHEET_API = '';
+
+  /* ================= DATA ================= */
+  /* Posts. Times are Arizona time. s = status. */
+  var POSTS = [{"d":"2026-10-01","t":"18:45","n":"Catering story #1","y":"Story","s":"Scheduled","c":"This is what catering should look like. Trays full of smoked meats, plenty of sides, and no sad sandwiches in sight. Bring Dutchman's to your next event and feed the crowd right.\n\nOrder catering here:\nhttps://order.toasttab.com/online/dutchmans-county-bbq-new-1615-n-apache-trail","u":""},{"d":"2026-10-03","t":"18:26","n":"Food + Lifestyle","y":"Carousel","s":"Scheduled","c":"Some places are built for grabbing dinner and heading home. Dutchman's isn't really one of them. Get the brisket sandwich on the table, order something cold, and catch up while the BBQ sauce keeps making its way around.","u":""},{"d":"2026-10-04","t":"18:41","n":"Live Music Weekly Schedule + Story","y":"Story","s":"Scheduled","c":"The smokers aren't the only thing making noise this weekend.\n\nWhiskey Road: Friday, Oct. 9th, 6PM to 9PM\nHaley Dye: Saturday, Oct. 10th, 6PM to 9PM\nRock N Dolls: Sunday, Oct. 11th, 2PM to 5PM\n\nBBQ on the table, live music on stage. That's a weekend at Dutchman's.","u":""},{"d":"2026-10-04","t":"18:45","n":"Catering story #2","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-05","t":"18:26","n":"Monday: Pulled Pork Special","y":"Post","s":"Scheduled","c":"Monday brought the appetite. We brought the answer. Pulled Pork Sandwich plus your choice of side for $9.99, and $4 Margaritas to go with it. Come take a seat at Dutchman's and let somebody else worry about dinner.","u":""},{"d":"2026-10-05","t":"18:43","n":"Margarita Monday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-05","t":"18:43","n":"Monday: Pulled Pork Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-06","t":"18:42","n":"Taco Tuesday","y":"IG Reel","s":"Scheduled","c":"Turns out BBQ doesn't need a plate to make a point. Put it in a taco, load it up the Dutchman's way, and Tuesday suddenly has a whole different look. Get $3 OFF tacos every Tuesday and come see for yourself.","u":""},{"d":"2026-10-06","t":"18:44","n":"Taco Tuesday: Taco Tuesday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-07","t":"18:43","n":"Wednesday: Loaded Potato Special Photo","y":"Post","s":"Scheduled","c":"Calling this \"just a potato\" feels disrespectful at this point. Dutchman's Stuffed Potato comes loaded, covered, and ready to take care of dinner. Get $3 OFF every Wednesday.","u":""},{"d":"2026-10-07","t":"18:44","n":"Wednesday: Loaded Potato Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-08","t":"18:45","n":"Catering story #3","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-09","t":"18:42","n":"Reel","y":"IG Reel","s":"Scheduled","c":"The mountains have always made a pretty good backdrop. Now the patio and live music are back to give you another reason to stick around. Slow smoked BBQ, cold drinks, a band playing, and nowhere you need to rush off to.","u":""},{"d":"2026-10-10","t":"18:40","n":"Photo carousel","y":"Carousel","s":"Scheduled","c":"The pulled pork couldn't pick one lane, so neither should you. Get it piled high on a sandwich, come back for the tacos, and don't pretend that brownie isn't coming home with you. That's a proper Dutchman's order.","u":""},{"d":"2026-10-11","t":"18:28","n":"Catering #4","y":"Design","s":"Scheduled","c":"Some gatherings call for more than a few pizzas on the counter. Bring in the BBQ, pass the sides, and give the whole crew something worth showing up hungry for. Dutchman's catering is ready when your guest list starts growing.\n\nOrder catering here:\nhttps://order.toasttab.com/online/dutchmans-county-bbq-new-1615-n-apache-trail","u":""},{"d":"2026-10-12","t":"18:41","n":"Margarita Monday Special","y":"Design","s":"Scheduled","c":"Monday wants meetings, emails, and responsibilities. We're offering a better counterpoint: $4 Margaritas. Every Monday at Dutchman's Country BBQ. We'll see you after work.","u":""},{"d":"2026-10-12","t":"18:43","n":"Margarita Monday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-12","t":"18:43","n":"Monday: Pulled Pork Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-13","t":"18:44","n":"Taco Tuesday: Taco Tuesday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-14","t":"09:07","n":"Reel","y":"IG Reel","s":"Scheduled","c":"Dutchman’s Country BBQ is celebrating one year! Join us Sunday, Oct. 25th in Apache Junction. Live bands all day, family fun, and good BBQ.\n\nThank you, Apache Junction, for a year of BBQ and familiar faces. Come celebrate with us, y’all.","u":""},{"d":"2026-10-14","t":"18:27","n":"Wednesday Loaded Potato Special","y":"Carousel","s":"Scheduled","c":"You could order something reasonable. Or you could order the potato that shows up looking like this. Get $3 OFF the DCB Loaded Potato every Wednesday at Dutchman's. We know which way we're going.","u":""},{"d":"2026-10-14","t":"18:41","n":"Live Music Weekly Schedule + Story","y":"Story","s":"Scheduled","c":"The weekend sounds better at Dutchman's. Two live sets are coming your way.\n\nThomas James Band: Friday Oct. 16th, 6PM to 9PM\nRomen Buffalo: Sunday Oct. 18th, 2PM to 5PM\n\nCome hungry. Stay for the music. That's how weekends go at Dutchman's.","u":""},{"d":"2026-10-14","t":"18:44","n":"Wednesday: Loaded Potato Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-15","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-15","t":"18:45","n":"Catering story #1","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-16","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-17","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-17","t":"18:26","n":"Food + Lifestyle","y":"Carousel","s":"Scheduled","c":"Just a little update! No live band tonight, but the live music will be back tomorrow.\n\nAnother tray of BBQ hits the table, somebody's already headed back to the bar, and the good times keep rolling. That's just Dutchman's doing what Dutchman's does.","u":""},{"d":"2026-10-18","t":"09:08","n":"1 WEEK OUT - Anniversary","y":"Post","s":"Scheduled","c":"One week until Dutchman’s Country BBQ turns one! Sunday, Oct. 25th in Apache Junction. Live bands all day, family fun, and good BBQ.\n\nMark your calendar and bring the family. We’re celebrating a year with the folks who made it happen, y’all.","u":""},{"d":"2026-10-18","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-18","t":"18:45","n":"Catering story #2","y":"Story","s":"Scheduled","c":"You've got enough to handle when you're hosting. Let us take care of the part everyone shows up hungry for. Dutchman's catering brings the BBQ, the sides, and plenty to go around.\n\nOrder catering here:\nhttps://order.toasttab.com/online/dutchmans-county-bbq-new-1615-n-apache-trail","u":""},{"d":"2026-10-19","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-19","t":"18:26","n":"Monday: Pulled Pork Special","y":"Post","s":"Scheduled","c":"Go ahead, pour a little more sauce on it. Monday at Dutchman's gets you a Pulled Pork Sandwich plus your choice of side for $9.99, and $4 Margaritas to wash it down. That's one Monday habit we're happy to encourage.","u":""},{"d":"2026-10-19","t":"18:41","n":"Live Music Weekly Schedule + Story","y":"Story","s":"Scheduled","c":"We've got a full weekend of live music lined up at Dutchman's, and Sunday's getting a little extra attention with two performances! Four live sets across three days, with plenty of BBQ and cold drinks to go around. Come spend some time with us.\n\nIn Color Band: Friday Oct. 23rd, 6PM to 9PM\n\nTater and the Tokers: Saturday Oct. 24th, 6PM to 9PM\n\nWhiskey Road: Sunday Oct. 25th, 2PM to 5PM\n\nHaley Dye: Sunday Oct. 25th, 6PM to 9PM","u":""},{"d":"2026-10-19","t":"18:43","n":"Margarita Monday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-19","t":"18:44","n":"Monday: Pulled Pork Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-20","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-20","t":"18:44","n":"Taco Tuesday: Taco Tuesday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-21","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-21","t":"18:43","n":"Wednesday: Loaded Potato Special Photo","y":"Post","s":"Scheduled","c":"If you can still see the potato, we're not finished yet. The DCB Loaded Potato gets the full Dutchman's treatment, and every Wednesday it's $3 OFF. One order and you've got plenty to work through.","u":""},{"d":"2026-10-21","t":"18:44","n":"Wednesday: Loaded Potato Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-22","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-22","t":"18:45","n":"Catering story #3","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-23","t":"14:31","n":"One Year Anniversary Timeline Post","y":"Post","s":"Scheduled","c":"Time flies when the smokers are running and the tables are full.\n\nWe've spent the past year serving BBQ, meeting good people, and making Dutchman's a place where folks can come together. This Sunday Oct. 25th, we're celebrating with live music, good food, and the community that's been showing up for us since day one.\n\nWhiskey Road: 2PM to 5PM\n\nHaley Dye: 6PM to 9PM\n\nOne year down, and we've got plenty more BBQ to serve. Come celebrate with us!\n\n1615 N Apache Trail, Apache Junction, AZ","u":""},{"d":"2026-10-23","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-24","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-24","t":"18:42","n":"Reel","y":"IG Reel","s":"Scheduled","c":"Turns out BBQ tastes pretty good with a live band in the background. The patio is open at Dutchman's, and we're filling it with food, cold drinks, music, and people who aren't in a hurry to head home.","u":""},{"d":"2026-10-25","t":"09:27","n":"Anniversary IG REEL","y":"IG Reel","s":"Scheduled","c":"Today’s the day! Dutchman’s Country BBQ is celebrating one year in Apache Junction. Live bands all day, family fun, and good BBQ.\n\nCome on out and celebrate with us, y’all. Thank you for an amazing year.","u":""},{"d":"2026-10-25","t":"15:01","n":"One Year Anniversary Story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-25","t":"18:41","n":"Live Music Weekly Schedule + Story","y":"Story","s":"Scheduled","c":"Consider this your warning before someone texts you Saturday night asking, \"What are we doing?\" Send them this.\n\nWhiskey Road: Friday Oct. 30th, 6PM to 9PM\nSnakeskin Rodeo: Saturday Oct. 31st, 6PM to 9PM\nThe Heavy Crawls: Sunday Nov. 1st, 2PM to 5PM\n\nWeekend problem solved. We'll see you at Dutchman's.","u":""},{"d":"2026-10-25","t":"18:45","n":"Catering story #4","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-26","t":"18:41","n":"Monday: Pulled Pork Special","y":"Design","s":"Scheduled","c":"Monday can keep the emails, traffic, and whatever else it has planned. We're answering with pulled pork and $4 Margaritas. Get a Pulled Pork Sandwich with your choice of side for $9.99 every Monday at Dutchman's Country BBQ.","u":""},{"d":"2026-10-26","t":"18:43","n":"Margarita Monday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-26","t":"18:44","n":"Monday: Pulled Pork Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-27","t":"18:42","n":"National American Beer Day Photo","y":"Post","s":"Scheduled","c":"Some holidays require planning. National American Beer Day requires a cold glass and a seat at Dutchman's BBQ.\n\nDutchman’s Gold Lager is ready when you are, and the BBQ won't be far behind.","u":""},{"d":"2026-10-27","t":"18:44","n":"Taco Tuesday: Taco Tuesday Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-28","t":"18:27","n":"Wednesday Loaded Potato Special","y":"Carousel","s":"Scheduled","c":"At some point under all that BBQ, there's a potato. We promise. The DCB Loaded Potato is $3 OFF every Wednesday, so go ahead and make the thing that barely fits in the bowl your entire dinner plan.","u":""},{"d":"2026-10-28","t":"18:44","n":"Wednesday: Loaded Potato Special story","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-29","t":"18:45","n":"Catering story #1","y":"Story","s":"Scheduled","c":"","u":""},{"d":"2026-10-30","t":"18:26","n":"Food + Lifestyle","y":"Carousel","s":"Scheduled","c":"First slide says it all. The patio is full, people are dancing, and the Arizona sky is putting on its own show. Add a Double Brisket Burger, Arizona Elote, and a drink from the bar, and you've got a pretty good reason to spend your evening at Dutchman's.","u":""},{"d":"2026-10-31","t":"18:28","n":"Halloween","y":"Design","s":"Scheduled","c":"Costumes are optional. Showing up hungry is highly recommended. Happy Halloween from Dutchman's Country BBQ, where we're keeping the smokers going and the spooky season well fed.","u":""},{"d":"2026-11-01","t":"10:00","n":"National Sandwich Day (Photo carousel)","y":"Carousel","s":"Scheduled","c":"National Sandwich Day is coming up on Tuesday Nov. 3rd, and we're already making your decision harder than it needs to be.\n\nTexas Twinkie Burger? Pulled Pork Sandwich? Brisket Sandwich?\n\nYou've got a few days to think it over, but we can't promise choosing just one will get any easier. See you at Dutchman's Country BBQ!","u":""},{"d":"2026-11-02","t":"10:00","n":"Live Music Weekly Schedule + STORY","y":"Story","s":"Approved","c":"Apparently, one night of Whiskey Road wasn't going to cut it this weekend. So we booked them twice.\n\nFriday Nov. 6th: Whiskey Road, 6PM to 9PM\n\nSaturday Nov. 7th: Dessert Knights Band, 6PM to 9PM\n\nSunday Nov. 8th: Whiskey Road, 2PM to 5PM\n\nThe stage is covered. The smokers are running. All you have to do is show up hungry and find yourself a seat.","u":""},{"d":"2026-11-03","t":"18:42","n":"Taco Tuesday","y":"IG Reel","s":"Scheduled","c":"Save the basic tacos for another night. Taco Tuesday at Dutchman's still comes with the BBQ you showed up for, just wrapped in a tortilla and ready for another round. Get $3 OFF tacos every Tuesday and give yourself a reason to leave the house.","u":""},{"d":"2026-11-06","t":"18:42","n":"Reel","y":"IG Reel","s":"Scheduled","c":"First time at Dutchman's? Don't waste it on a light snack. Pulled Pork Sandwich, Loaded Potato, Brisket Smash Burger, and Straight Brisket are four solid ways to understand what we do around here. Fair warning, picking just one might be the hardest part.","u":""},{"d":"2026-11-07","t":"10:00","n":"Food + Lifestyle","y":"Carousel","s":"Approved","c":"There's something about a table full of BBQ that makes an ordinary afternoon feel like time well spent.\n\nA few good friends, your favorite order, and plenty of stories to catch up on.\n\nThat's what we love about having you at Dutchman's.","u":""},{"d":"2026-11-08","t":"10:00","n":"Live music weekly schedule","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-09","t":"10:00","n":"Monday: Pulled Pork Special","y":"Post","s":"Approved","c":"Go ahead, pour a little more sauce on it. We're not judging.\n\nEvery Monday at Dutchman's, a Pulled Pork Sandwich with your choice of side is just $9.99, and Margaritas are $4.\n\nThe only thing you need to figure out is how you're picking that sandwich up without making a mess.","u":""},{"d":"2026-11-11","t":"10:00","n":"Veteran's Day","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-12","t":"10:00","n":"Designed carousel","y":"Carousel","s":"In design","c":"","u":""},{"d":"2026-11-13","t":"10:00","n":"Reel","y":"IG Reel","s":"In design","c":"","u":""},{"d":"2026-11-14","t":"10:00","n":"Food + Lifestyle","y":"Carousel","s":"Approved","c":"A good day in Apache Junction deserves a good stop along the way.\n\nSwing by Dutchman's for a Brisket Smash Burger, BBQ Baked Beans, and a little time away from whatever's waiting on your to-do list. The BBQ's ready when you are.","u":""},{"d":"2026-11-15","t":"10:00","n":"Catering","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-16","t":"10:00","n":"Live music weekly schedule","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-18","t":"10:00","n":"Reel","y":"IG Reel","s":"In design","c":"","u":""},{"d":"2026-11-19","t":"10:00","n":"Happy hour","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-21","t":"10:00","n":"Food + Lifestyle","y":"Carousel","s":"Approved","c":"Good BBQ has a way of bringing people to the same table.\n\nA brisket sandwich for one, tacos for another, and a couple of cold drinks to go with it.\n\nAt Dutchman's Country BBQ, there's always a good reason to pull up a chair.","u":""},{"d":"2026-11-22","t":"10:00","n":"Catering","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-23","t":"10:00","n":"Live music weekly schedule","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-25","t":"10:00","n":"Wednesday Loaded Potato Special","y":"Carousel","s":"Approved","c":"Wednesday's lunch break deserves more than another rushed meal. Pull up a chair at Dutchman's, order the DCB Loaded Potato, and enjoy $3 OFF. The emails can wait a few minutes.","u":""},{"d":"2026-11-26","t":"10:00","n":"Thanksgiving","y":"Design","s":"In design","c":"","u":""},{"d":"2026-11-27","t":"10:00","n":"Reel","y":"IG Reel","s":"In design","c":"","u":""},{"d":"2026-11-28","t":"10:00","n":"Wednesday Loaded Potato Special","y":"Carousel","s":"Approved","c":"Whoever said a baked potato belongs on the side clearly hasn't been to Dutchman's.\n\nOur DCB Loaded Potato has enough going on to take center stage, and every Wednesday, we're taking $3 OFF. Grab a seat, order your favorite drink, and make a proper meal out of it.","u":""},{"d":"2026-11-29","t":"10:00","n":"Designed carousel","y":"Carousel","s":"In design","c":"","u":""},{"d":"2026-11-30","t":"10:00","n":"Monday: Pulled Pork Special","y":"Post","s":"Approved","c":"The kind of Monday lunch that makes you forget you have a whole workweek ahead of you.\n\nAt Dutchman's Country BBQ, our Pulled Pork Sandwich comes with your choice of side for just $9.99 every Monday. Plus, we've got $4 Margaritas if you're making an afternoon or evening of it.","u":""}];
+
+  /* Bands: Oct 9 to Oct 25 from the weekly schedule posts, Oct 30 to Nov 15 from dutchmansbbq.com/event-list.
+     a = true when the website lists the date but no time (shown as the usual weekend slot). */
+  var B = function (date, time, end, band, a) { return { id: 'm-' + date + '-' + time, date: date, time: time, endTime: end, title: band, kind: 'music', assumed: !!a }; };
+  var MUSIC = [
+    B('2026-10-09', '18:00', '21:00', 'Whiskey Road'), B('2026-10-10', '18:00', '21:00', 'Haley Dye'), B('2026-10-11', '14:00', '17:00', 'Rock N Dolls'),
+    B('2026-10-16', '18:00', '21:00', 'Thomas James Band'), B('2026-10-18', '14:00', '17:00', 'Romen Buffalo'),
+    B('2026-10-23', '18:00', '21:00', 'In Color Band'), B('2026-10-24', '18:00', '21:00', 'Tater and the Tokers'),
+    B('2026-10-25', '14:00', '17:00', 'Whiskey Road'), B('2026-10-25', '18:00', '21:00', 'Haley Dye'),
+    B('2026-10-30', '18:00', '21:00', 'Whiskey Road'), B('2026-10-31', '18:00', '21:00', 'Snakeskin Rodeo'), B('2026-11-01', '14:00', '17:00', 'The Heavy Crawls'),
+    B('2026-11-06', '18:00', '21:00', 'Whiskey Road'), B('2026-11-07', '18:00', '21:00', 'Dessert Knights Band'), B('2026-11-08', '14:00', '17:00', 'Whiskey Road'),
+    B('2026-11-13', '18:00', '21:00', 'Haley Dye', 1), B('2026-11-14', '18:00', '21:00', 'Haley Dye', 1), B('2026-11-15', '14:00', '17:00', 'The Heavy Crawls', 1)
+  ];
+
+  var H = function (date, title, hours) { return { id: 'h-' + date, date: date, title: title, kind: 'holiday', hours: hours || '' }; };
+  var HOLIDAYS = [H('2026-10-31', 'Halloween'), H('2026-11-11', 'Veterans Day'), H('2026-11-26', 'Thanksgiving', 'closed'), H('2026-11-27', 'Black Friday'), H('2026-11-28', 'Small Business Saturday'), H('2026-11-30', 'Cyber Monday'),
+    H('2026-12-24', 'Christmas Eve'), H('2026-12-25', 'Christmas Day'), H('2026-12-31', "New Year's Eve"), H('2027-01-01', "New Year's Day"), H('2027-01-18', 'Martin Luther King Jr. Day')];
+
+  var SPECIALS = { 1: ['Pulled pork special', '$9.99 Pulled Pork Sandwich with a side, $4 margaritas'], 2: ['Taco Tuesday', '$3 off tacos'], 3: ['Loaded potato special', '$3 off the DCB Loaded Potato'] };
+
+  /* Ideas. src: where the date came from. c = true when sources disagree or the date is not confirmed. */
+  var IDEAS = [
+    { id: 'f-1102', date: '2026-11-02', title: 'National Deviled Egg Day', cat: 'food', blurb: 'Light post idea: a smoked-egg or pimiento angle on the Texaz Twinkies.' },
+    { id: 'f-1105', date: '2026-11-05', title: 'National Doughnut Day', cat: 'food', blurb: 'Dessert case post: banana pudding, pecan tart, lemon meringue.', c: 1 },
+    { id: 'f-1106', date: '2026-11-06', title: 'National Nachos Day', cat: 'food', blurb: 'Loaded potato and loaded mac-n-cheese are the closest things on the menu.', c: 1 },
+    { id: 'f-1114', date: '2026-11-14', title: 'National Pickle Day', cat: 'food', blurb: 'Pickles and pickled red onion are on the pulled pork and brisket sandwiches.', c: 1 },
+    { id: 'f-1123', date: '2026-11-23', title: 'National Eat a Cranberry Day', cat: 'food', blurb: 'Thanksgiving week. Sliced turkey sandwich and turkey breast by the half pound.' },
+    { id: 'f-1126', date: '2026-11-26', title: 'National Cake Day', cat: 'food', blurb: 'Falls on Thanksgiving. Better as a dessert-case post the day before.', c: 1 },
+    { id: 'f-1204', date: '2026-12-04', title: 'National Cookie Day', cat: 'food', blurb: 'Two sources agree on this date.' },
+    { id: 'f-1208', date: '2026-12-08', title: 'National Brownie Day', cat: 'food', blurb: 'Brownie has been in the October captions. Easy dessert feature.' },
+    { id: 'f-1217', date: '2026-12-17', title: 'National Maple Syrup Day', cat: 'food', blurb: 'Hot honey cornbread is the nearest match on the menu.', c: 1 },
+    { id: 'f-1221', date: '2026-12-21', title: 'National Hamburger Day', cat: 'food', blurb: 'Brisket Smash Burger and Double Brisket Burger have both been in recent captions.', c: 1 },
+    { id: 'f-1231', date: '2026-12-31', title: 'National Champagne Day', cat: 'food', blurb: 'New Year’s Eve drinks post.', c: 1 },
+    { id: 'f-0114', date: '2027-01-14', title: 'National Hot Pastrami Sandwich Day', cat: 'food', blurb: 'Sandwich day. Brisket Sandwich with fried jalapeños is the swap.', c: 1 },
+    { id: 'f-0122', date: '2027-01-22', title: 'National Hot Sauce Day', cat: 'food', blurb: 'Chipotle aioli, chipotle ranch, hot honey.', c: 1 },
+    { id: 'f-0129', date: '2027-01-29', title: 'National Corn Chip Day', cat: 'food', blurb: 'Elote and cornbread angle.', c: 1 },
+    { id: 'a-1101', date: '2026-11-01', title: 'Gina’s Team 13th Annual Car, Bike & Truck Show', cat: 'aj', kind: 'event', time: '09:00', endTime: '13:45', blurb: 'Apache Junction Moose Lodge, West 16th Avenue. 9:00 AM to 1:45 PM.', src: 'americancollectors.com' },
+    { id: 'a-1107', date: '2026-11-07', title: 'Festival of the Superstitions Car Show', cat: 'aj', kind: 'event', time: '09:00', endTime: '17:00', blurb: 'Apache Junction Chamber of Commerce and Visitor Center, Apache Trail. 9:00 AM to 5:00 PM.', src: 'americancollectors.com' },
+    { id: 'a-1205', date: '2026-12-05', title: 'Apache Junction Holiday Program & Light Parade', cat: 'aj', kind: 'event', blurb: 'Held the first weekend of December in past years (tree lighting, then the light parade). 2026 date not announced yet.', c: 1, src: 'yourvalley.net' }
+  ];
+  var HOLIDAY_IDEAS = HOLIDAYS.map(function (h) { return { id: 'hd-' + h.date, date: h.date, title: h.title, cat: 'holiday', kind: 'holiday', blurb: 'Choose open, closing early or closed.' }; });
+  IDEAS = IDEAS.concat(HOLIDAY_IDEAS).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+
+  var MENU = {
+    smoker: { note: 'By the 1/2 lb', items: [['Brisket', '17.99'], ['Pulled Pork', '8.99'], ['Turkey Breast', '10.99'], ['St. Louis Spareribs', 'Half rack 18 / Full rack 29'], ['Hatch Chile & Jack Cheese Sausage', '8.99']],
+      sampler: ['JW’s Meat Sampler', '30', '1/4 lb of all 5 meats from our smoker served with our honey butter cornbread. (no substitutions)'],
+      sides: ['Arizona Elote', 'Green Apple & Poblano Coleslaw', 'Jalapeño + Chipotle Gouda Mac-n-Cheese', 'BBQ Baked Beans', 'DCB Cheesy Potatoes', 'French Fries'] },
+    bites: [['Pork Belly Lollipops', '9.99', 'Smoked and glazed pork belly on a skewer. 3 per order'], ['DCB Cornbread', '4.99', 'With hot honey'], ['Smoked Brisket Chili', '7.99', 'Smoked brisket, angus ground beef, roasted poblano, house chili spice blend, onion, avocado + cilantro crema, cheddar cheese, jalapeño, cilantro'], ['Texaz Twinkies', '9.99', 'Whole jalapeño smoked and stuffed with pulled pork, pimiento cheese, quesadilla cheese, and wrapped in bacon, served with chipotle ranch. 3 per order']],
+    sandwiches: [['Pulled Pork Sandwich', '12.99', 'Coleslaw, chipotle aioli, pickles, pickled red onion, toasted bun'], ['Brisket Sandwich', '17.99', 'Chipotle aioli, fried jalapeños, pickled red onion, toasted bun'], ['Sliced Turkey Sandwich', '12.99', 'Coleslaw, pickles, toasted bun']],
+    stacks: [['BBQ Chopped Salad', '12.99', 'Turkey, romaine, cucumber, red onion, tomatoes, bacon, blue cheese, croutons. Choice of cilantro + lime ranch, chipotle ranch, or smoked Dijon vinaigrette'], ['DCB Loaded Potato', '12.99', 'Our famous stuffed baked potato. Choice of brisket, pulled pork or sausage, avocado + cilantro crema, butter, quesadilla cheese, chipotle aioli, bacon, fried jalapeño, scallion, cilantro', 1], ['Loaded Mac-n-Cheese', '12.99', 'Our cheesy, gooey mac n cheese with choice of brisket, pulled pork or sausage, avocado + cilantro crema, chipotle aioli, bacon, scallion, fried jalapeño, cotija, cilantro']],
+    tacos: [['Pulled Pork Taco', '', 'Cheese, avocado + cilantro crema, pineapple salsa, pickled red onion, cotija, cilantro. 2 per order'], ['Brisket Taco', '', 'Cheese, avocado + cilantro crema, pico de gallo, pickled red onion, cotija, cilantro. 2 per order'], ['Quesadilla', '12.99', 'Pick your meat or go meat free. Cheese, roasted poblano & bell pepper, sautéed onions, served with avocado + cilantro crema and chipotle ranch']],
+    crispy: [['Chicken Tenders', '11.99', '3 tenders, served with chipotle ranch and choice of one side'], ['Dutchman’s BBQ Bombs', '13.99', 'Pulled pork, white queso, Dutchman’s Original BBQ sauce, cornbread battered, chipotle aioli, cilantro. 3 per order', 1], ['Mac-n-Cheese Bombs', '10.99', 'Our amazing mac-n-cheese breaded and fried to a crispy crunch. Served with chipotle ranch']],
+    dessert: ['Pecan Pie Tart w/ Buttermilk Whipped Cream', 'Banana Pudding', 'Lemon Meringue Tart']
+  };
+
+  /* ================= CONFIG ================= */
+  var MONTHS = [{ y: 2026, m: 9, label: 'October' }, { y: 2026, m: 10, label: 'November' }, { y: 2026, m: 11, label: 'December' }, { y: 2027, m: 0, label: 'January' }];
+  var LAYERS = [
+    { k: 'post', label: 'Social posts', c: 'var(--red)' }, { k: 'music', label: 'Live music', c: 'var(--gold-text)' },
+    { k: 'special', label: 'Weekly specials & promos', c: 'var(--sage)' }, { k: 'holiday', label: 'Holidays & food days', c: 'var(--sky)' },
+    { k: 'closure', label: 'Closures', c: 'var(--closed)' }, { k: 'event', label: 'Events & catering', c: 'var(--teal)' }
+  ];
+  var KIND = {
+    event: { label: 'Event', layer: 'event', color: 'var(--teal)' },
+    music: { label: 'Live music', layer: 'music', color: 'var(--gold-text)' },
+    promo: { label: 'Special / promo', layer: 'special', color: 'var(--sage)' },
+    catering: { label: 'Catering', layer: 'event', color: 'var(--teal)' },
+    holiday: { label: 'Holiday', layer: 'holiday', color: 'var(--sky)' },
+    foodday: { label: 'Food day', layer: 'holiday', color: 'var(--sky)' },
+    private: { label: 'Closed for private event', layer: 'closure', color: 'var(--closed)' },
+    closed: { label: 'Closed', layer: 'closure', color: 'var(--closed)' }
+  };
+  var FORM_KINDS = ['event', 'music', 'promo', 'catering', 'holiday', 'foodday', 'private', 'closed'];
+  var PAGES = [['calendar', 'Calendar'], ['ideas', 'Ideas'], ['menu', 'Menu'], ['bands', 'Bands'], ['profile', 'Profile']];
+
+  var state = { page: 'calendar', mi: 1, sel: '2026-11-01', view: 'cal', on: { post: true, music: true, special: true, holiday: true, closure: true, event: true }, idea: 'all' };
+  var own = [], localOwn = [], api = !!SHEET_API, drag = null, loaded = false;
+  var LS = 'dutchmans-cal-events-v2';
+
+  /* ================= HELPERS ================= */
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+  var iso = function (y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); };
+  var parse = function (s) { var a = s.split('-'); return new Date(Date.UTC(+a[0], +a[1] - 1, +a[2])); };
+  var addDays = function (s, n) { var d = parse(s); d.setUTCDate(d.getUTCDate() + n); return iso(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
+  var diffDays = function (a, b) { return Math.round((parse(b) - parse(a)) / 864e5); };
+  var DOW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function t12(t, short) {
+    if (!t) return '';
+    var a = t.split(':'), h = +a[0], m = a[1], ap = h >= 12 ? (short ? 'p' : ' PM') : (short ? 'a' : ' AM');
+    h = h % 12 || 12;
+    return short ? h + (m === '00' ? '' : ':' + m) + ap : h + ':' + m + ap;
+  }
+  function span(i) { return i.time ? t12(i.time) + (i.endTime ? ' – ' + t12(i.endTime) : '') : ''; }
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function () { t.hidden = true; }, 3800); }
+  function hoursNote(e, short) {
+    if (e.kind === 'holiday') return e.hours === 'closed' ? 'Closed' : e.hours === 'early' ? 'Closes ' + t12(e.time, short) : e.hours === 'open' ? 'Open' : '';
+    if (e.kind === 'private' || e.kind === 'closed') return e.hours === 'part' && e.time ? 'Closed ' + t12(e.time, short) + (e.endTime ? '–' + t12(e.endTime, short) : '') : 'Closed all day';
+    return '';
+  }
+  var allOwn = function () { return own.concat(localOwn); };
+
+  /* ================= ITEMS ================= */
+  function ownFor(date) {
+    var out = [];
+    allOwn().forEach(function (e) {
+      var end = e.endDate && e.endDate > e.date ? e.endDate : e.date;
+      var k = KIND[e.kind] || KIND.event;
+      if (date >= e.date && date <= end) out.push(Object.assign({}, e, { own: true, layer: k.layer, color: k.color, tag: k.label, note: hoursNote(e, false) }));
+    });
+    return out;
+  }
+  function itemsFor(date, all) {
+    var out = [], mine = ownFor(date);
+    var hasMyHoliday = mine.some(function (e) { return e.kind === 'holiday'; });
+    if (!hasMyHoliday) HOLIDAYS.forEach(function (h) { if (h.date === date) out.push(Object.assign({ layer: 'holiday', color: KIND.holiday.color, tag: 'Holiday', note: hoursNote(h, false) }, h)); });
+    mine.forEach(function (e) { out.push(e); });
+    MUSIC.forEach(function (x) { if (x.date === date) out.push(Object.assign({ layer: 'music', color: KIND.music.color, tag: 'Live music' }, x)); });
+    POSTS.forEach(function (x, ix) { if (x.d === date) out.push({ id: 'p' + ix, date: date, time: x.t, title: x.n, kind: 'post', layer: 'post', color: 'var(--red)', tag: x.y, status: x.s, caption: x.c, url: x.u }); });
+    var dow = parse(date).getUTCDay();
+    if (SPECIALS[dow]) out.push({ id: 's-' + date, date: date, title: SPECIALS[dow][0], kind: 'special', layer: 'special', color: 'var(--sage)', tag: 'Weekly special', caption: SPECIALS[dow][1] });
+    var rank = { holiday: 0, closure: 1, event: 2, music: 3, post: 4, special: 5 };
+    out.sort(function (a, b) { var d = rank[a.layer] - rank[b.layer]; return d || ((a.time || '') < (b.time || '') ? -1 : 1); });
+    return all ? out : out.filter(function (i) { return state.on[i.layer]; });
+  }
+
+  /* ================= CALENDAR PAGE ================= */
+  function monthDates(mi) {
+    var m = MONTHS[mi], first = new Date(Date.UTC(m.y, m.m, 1)), last = new Date(Date.UTC(m.y, m.m + 1, 0)).getUTCDate(), out = [];
+    for (var d = 1 - first.getUTCDay(); out.length % 7 !== 0 || d <= last; d++) out.push(addDays(iso(m.y, m.m, 1), d - 1));
+    return { dates: out, ym: iso(m.y, m.m, 1).slice(0, 7) };
+  }
+  function renderBar() {
+    $('months').innerHTML = MONTHS.map(function (m, i) { return '<button data-mi="' + i + '" aria-pressed="' + (state.mi === i) + '">' + m.label + '</button>'; }).join('');
+    $('layers').innerHTML = LAYERS.map(function (l) { return '<button class="layer" data-layer="' + l.k + '" style="--c:' + l.c + '" aria-pressed="' + state.on[l.k] + '"><i></i>' + l.label + '</button>'; }).join('');
+    $('v-cal').setAttribute('aria-pressed', state.view === 'cal'); $('v-agenda').setAttribute('aria-pressed', state.view === 'agenda');
+  }
+  function chipLabel(i) { var n = i.hours ? hoursNote(i, true) : ''; return i.title + (n ? ' · ' + n : ''); }
+  function renderGrid() {
+    var md = monthDates(state.mi), now = new Date(), ts = iso(now.getFullYear(), now.getMonth(), now.getDate());
+    $('grid').innerHTML = md.dates.map(function (d) {
+      var items = itemsFor(d), inM = d.slice(0, 7) === md.ym, n = +d.slice(8), shown = items.slice(0, 3), extra = items.length - shown.length;
+      var chips = shown.map(function (i) {
+        var cls = 'chip' + (i.layer === 'special' ? ' dim' : '') + (i.status === 'In design' ? ' draft' : '') + (i.layer === 'closure' || i.hours === 'closed' ? ' closure' : '') + (i.own ? ' mine' : '');
+        var showTime = i.time && i.kind !== 'holiday' && i.kind !== 'private' && i.kind !== 'closed';
+        return '<div class="' + cls + '" style="--c:' + i.color + '"' + (i.own ? ' draggable="true" data-drag="' + esc(i.id) + '" data-from="' + d + '"' : '') + '>' + (showTime ? '<span class="t">' + t12(i.time, true) + '</span>' : '') + '<span class="n">' + esc(chipLabel(i)) + '</span></div>';
+      }).join('');
+      var dots = items.slice(0, 6).map(function (i) { return '<i style="--c:' + i.color + '"></i>'; }).join('');
+      return '<div class="day' + (inM ? '' : ' out') + (d === ts ? ' today' : '') + '" role="button" tabindex="0" data-date="' + d + '" aria-pressed="' + (d === state.sel) + '" aria-label="' + DOW[parse(d).getUTCDay()] + ' ' + MON[+d.slice(5, 7) - 1] + ' ' + n + ', ' + items.length + ' items"><span class="num">' + n + '</span>' + chips + (extra > 0 ? '<span class="more">+' + extra + ' more</span>' : '') + '<span class="dots">' + dots + '</span></div>';
+    }).join('');
+  }
+  function itemHTML(i) {
+    var tags = '<span class="tag" style="--c:' + i.color + '">' + esc(i.tag || 'Event') + '</span>';
+    if (i.note) tags += '<span class="tag" style="--c:' + (i.hours === 'open' ? 'var(--sage)' : 'var(--red)') + '">' + esc(i.note) + '</span>';
+    if (i.status) tags += '<span class="tag plain">' + esc(i.status) + '</span>';
+    if (i.assumed) tags += '<span class="tag plain">Time not on website</span>';
+    var cap = i.caption ? '<p class="cap">' + esc(i.caption) + '</p>' : (i.notes ? '<p class="cap">' + esc(i.notes) + '</p>' : '');
+    var link = '';
+    var row = i.own ? '<div class="row"><button class="btn ghost small" data-edit="' + esc(i.id) + '">Edit</button><button class="btn danger small" data-del="' + esc(i.id) + '">Delete</button></div>' : '';
+    var time = i.kind === 'holiday' || i.kind === 'private' || i.kind === 'closed' || i.layer === 'holiday' ? '' : span(i);
+    return '<li class="item' + (i.layer === 'closure' ? ' closure' : '') + '" style="--c:' + i.color + '"><div class="top2"><h3>' + esc(i.title) + '</h3><span class="time">' + time + '</span></div><div class="tags">' + tags + '</div>' + cap + link + row + '</li>';
+  }
+  function renderPanel() {
+    var d = state.sel, dt = parse(d), items = itemsFor(d), hidden = itemsFor(d, true).length - items.length;
+    $('panel').innerHTML = '<h2>' + DOW[dt.getUTCDay()] + '<br><span style="color:var(--gold-text)">' + MON[dt.getUTCMonth()] + ' ' + dt.getUTCDate() + '</span></h2><p class="sub">' + items.length + (items.length === 1 ? ' item' : ' items') + (hidden ? ' &middot; ' + hidden + ' hidden by filters' : '') + '</p>' +
+      (items.length ? '<ul class="items">' + items.map(itemHTML).join('') + '</ul>' : '<p class="empty">Nothing planned yet. Add an event, a band, a holiday, a closure or a private event.</p>') + '<button class="btn" data-add="' + d + '">+ Add to this day</button>';
+  }
+  function renderAgenda() {
+    var html = '';
+    MONTHS.forEach(function (m, mi) {
+      var md = monthDates(mi), body = '', any = false;
+      md.dates.filter(function (d) { return d.slice(0, 7) === md.ym; }).forEach(function (d) {
+        var items = itemsFor(d).filter(function (i) { return i.layer !== 'special'; }); if (!items.length) return; any = true;
+        var dt = parse(d); body += '<h3 class="dh">' + DOW[dt.getUTCDay()].slice(0, 3) + ' ' + MON[dt.getUTCMonth()].slice(0, 3) + ' ' + dt.getUTCDate() + '</h3><ul class="items">' + items.map(itemHTML).join('') + '</ul>';
+      });
+      html += '<div class="mhead">' + m.label + ' ' + m.y + '</div>' + (any ? body : '<p class="empty">Nothing planned yet for ' + m.label + '.</p>');
+    });
+    $('agendaview').innerHTML = html + '<p class="note" style="margin-top:20px">Weekly specials show on the calendar and are left out of this list.</p>';
+  }
+  function renderCalendar() {
+    renderBar();
+    $('calview').hidden = state.view !== 'cal'; $('agendaview').hidden = state.view !== 'agenda'; $('drag-hint').hidden = state.view !== 'cal';
+    if (state.view === 'cal') { renderGrid(); renderPanel(); } else renderAgenda();
+  }
+
+  /* ================= IDEAS PAGE ================= */
+  function ideaOwn(id) { return allOwn().find(function (e) { return e.ideaId === id; }); }
+  function renderIdeas() {
+    var filters = [['all', 'All'], ['food', 'Food days'], ['holiday', 'Holidays'], ['aj', 'Apache Junction']];
+    var list = IDEAS.filter(function (i) { return state.idea === 'all' || i.cat === state.idea; }), html = '', last = '';
+    list.forEach(function (i) {
+      var ym = i.date.slice(0, 7);
+      if (ym !== last) { last = ym; html += '<div class="mh">' + MON[+ym.slice(5) - 1] + ' ' + ym.slice(0, 4) + '</div>'; }
+      var dt = parse(i.date), mine = ideaOwn(i.id), badges = '';
+      badges += '<span class="badge">' + (i.cat === 'food' ? 'Food day' : i.cat === 'aj' ? 'Apache Junction' : 'Holiday') + '</span>';
+      if (i.c) badges += '<span class="badge warn">' + (i.cat === 'aj' ? 'Date not confirmed' : 'Check date') + '</span>';
+      var btn = mine ? '<button class="btn ghost small" data-unidea="' + i.id + '">Added ✓ Remove</button>' : '<button class="btn gold small" data-idea="' + i.id + '">' + (i.cat === 'holiday' ? 'Add + set hours' : 'Add to calendar') + '</button>';
+      html += '<div class="idea"><div class="dt"><span>' + DOW[dt.getUTCDay()].slice(0, 3) + '</span><b>' + dt.getUTCDate() + '</b></div><div><h4>' + esc(i.title) + '</h4><p>' + badges + esc(i.blurb) + (i.src ? ' Source: ' + esc(i.src) + '.' : '') + '</p></div><div class="act">' + btn + '</div></div>';
+    });
+    $('pg-ideas').innerHTML = '<div class="banner"><span class="st">&#9733;</span><h2>Ideas &amp; add to calendar</h2><span class="st">&#9733;</span></div>' +
+      '<div class="ideas"><div class="card"><h3>Add your own</h3><p class="note">An event, a special, a holiday with its hours, or a closure for a private event. It goes straight onto the calendar.</p><div id="inline-form"></div></div>' +
+      '<div class="card"><h3>Food days, holidays &amp; local events</h3><p class="note">One click adds an idea to the calendar. Food day dates differ between sources, so anything marked Check date needs a quick confirm before it gets a post.</p><div class="fchips">' + filters.map(function (f) { return '<button data-idea-filter="' + f[0] + '" aria-pressed="' + (state.idea === f[0]) + '">' + f[1] + '</button>'; }).join('') + '</div>' + html +
+      '<p class="note" style="margin-top:18px">Just past this calendar: Lost Dutchman Days Parade, Feb. 27, 2027 (Apache Junction Chamber of Commerce).</p></div></div>';
+    var root = $('inline-form'); root.innerHTML = formHTML({ date: state.sel, kind: 'event', title: '', hours: '', time: '', endTime: '', endDate: '', notes: '' }, 'i'); wireForm(root, 'i', null);
+  }
+  function addIdea(id) {
+    var i = IDEAS.find(function (x) { return x.id === id; }); if (!i) return;
+    if (i.cat === 'holiday') { openForm(i.date, { date: i.date, kind: 'holiday', title: i.title, hours: 'open', time: '', endTime: '', notes: '', ideaId: i.id }, true); return; }
+    save({ title: i.title, kind: i.cat === 'food' ? 'foodday' : 'event', date: i.date, endDate: '', time: i.time || '', endTime: i.endTime || '', hours: '', notes: i.blurb + (i.src ? ' Source: ' + i.src + '.' : ''), ideaId: i.id }, null, true);
+  }
+
+  /* ================= FORM (shared by the modal and the Ideas page) ================= */
+  function formHTML(e, p) {
+    var opts = FORM_KINDS.map(function (k) { return '<option value="' + k + '"' + (e.kind === k ? ' selected' : '') + '>' + KIND[k].label + '</option>'; }).join('');
+    var shared = api;
+    return '<form id="' + p + '-form" novalidate>' +
+      '<div class="f"><label for="' + p + '-kind">Type</label><select id="' + p + '-kind">' + opts + '</select></div>' +
+      '<div class="f"><label for="' + p + '-title">Title</label><input id="' + p + '-title" maxlength="120" value="' + esc(e.title) + '" placeholder="Car show on the patio"></div>' +
+      '<div class="two"><div class="f"><label for="' + p + '-date">Date</label><input id="' + p + '-date" type="date" required value="' + esc(e.date) + '"></div>' +
+      '<div class="f"><label for="' + p + '-end">Last day (optional)</label><input id="' + p + '-end" type="date" value="' + esc(e.endDate || '') + '"></div></div>' +
+      '<div class="f" id="' + p + '-hrow"><label for="' + p + '-hours">Hours</label><select id="' + p + '-hours"></select></div>' +
+      '<div class="two" id="' + p + '-trow"><div class="f"><label for="' + p + '-time" id="' + p + '-tl">Start time</label><input id="' + p + '-time" type="time" value="' + esc(e.time || '') + '"></div>' +
+      '<div class="f" id="' + p + '-erow"><label for="' + p + '-etime">End time</label><input id="' + p + '-etime" type="time" value="' + esc(e.endTime || '') + '"></div></div>' +
+      '<div class="f"><label for="' + p + '-notes">Notes</label><textarea id="' + p + '-notes" maxlength="600" placeholder="Details for the social team">' + esc(e.notes || '') + '</textarea></div>' +
+      '<p class="note">' + (shared ? 'Saved to the shared calendar so the whole team sees it. You can drag it to another day later.' : 'Shared saving is not set up yet, so events are saved on this device only.') + '</p>' +
+      '<div class="foot" id="' + p + '-foot"><button type="submit" class="btn">Add to calendar</button></div></form>';
+  }
+  function wireForm(root, p, existing) {
+    var q = function (s) { return root.querySelector('#' + p + '-' + s); };
+    var h0 = existing && existing.hours;
+    function sync() {
+      var k = q('kind').value, hs = q('hours'), cur = hs.value || h0 || '', opts = null;
+      if (k === 'holiday') opts = [['open', 'Open regular hours'], ['early', 'Closing early'], ['closed', 'Closed all day']];
+      else if (k === 'private' || k === 'closed') opts = [['closed', 'Closed all day'], ['part', 'Closed for part of the day']];
+      q('hrow').hidden = !opts;
+      if (opts) { hs.innerHTML = opts.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>'; }).join(''); if (!opts.some(function (o) { return o[0] === cur; })) hs.value = opts[0][0]; }
+      var hv = opts ? hs.value : '', showT = true, showE = true, lab = 'Start time';
+      if (k === 'holiday') { showT = hv === 'early'; showE = false; lab = 'Closing time'; }
+      else if (k === 'private' || k === 'closed') { showT = hv === 'part'; showE = showT; lab = 'Closed from'; }
+      q('trow').hidden = !showT; q('erow').hidden = !showE; q('tl').textContent = lab;
+      if (!q('title').value && (k === 'private' || k === 'closed')) q('title').placeholder = k === 'private' ? 'Closed for private event' : 'Closed';
+    }
+    q('kind').onchange = function () { q('hours').value = ''; h0 = ''; sync(); }; q('hours').onchange = sync; sync();
+    q('form').onsubmit = function (ev) {
+      ev.preventDefault();
+      var k = q('kind').value, hv = q('hrow').hidden ? '' : q('hours').value, title = q('title').value.trim();
+      if (!title && (k === 'private' || k === 'closed')) title = k === 'private' ? 'Closed for private event' : 'Closed';
+      if (!title) { q('title').focus(); toast('Add a title first.'); return; }
+      if (!q('date').value) { q('date').focus(); return; }
+      var rec = { title: title, kind: k, date: q('date').value, endDate: q('end').value, hours: hv, time: q('trow').hidden ? '' : q('time').value, endTime: q('erow').hidden ? '' : q('etime').value, notes: q('notes').value.trim() };
+      if (existing && existing.ideaId) rec.ideaId = existing.ideaId;
+      if (rec.endDate && rec.endDate < rec.date) rec.endDate = '';
+      save(rec, existing && existing.id ? existing : null);
+    };
+    if (existing && existing.id) { var f = q('foot'); f.innerHTML = '<button type="submit" class="btn">Save changes</button>'; }
+    return q;
+  }
+  function openForm(date, existing, fromIdea) {
+    var e = existing || { date: date, kind: 'event', title: '', hours: '', time: '', endTime: '', endDate: '', notes: '' };
+    $('modal-root').innerHTML = '<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><h2 id="mt">' + (e.id ? 'Edit' : 'Add to calendar') + '</h2><div id="m-wrap"></div></div></div>';
+    var root = $('m-wrap'); root.innerHTML = formHTML(e, 'm');
+    var q = wireForm(root, 'm', e); var cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'btn ghost'; cancel.textContent = 'Cancel'; cancel.onclick = closeForm; q('foot').prepend(cancel);
+    $('scrim').addEventListener('mousedown', function (ev) { if (ev.target.id === 'scrim') closeForm(); }); q('title').focus();
+  }
+  function closeForm() { $('modal-root').innerHTML = ''; }
+
+  /* ================= SAVE / MOVE / DELETE ================= */
+  function persistLocal() { try { localStorage.setItem(LS, JSON.stringify(localOwn)); } catch (e) {} }
+  function jump(date) { var i = MONTHS.findIndex(function (m) { return date.slice(0, 7) === iso(m.y, m.m, 1).slice(0, 7); }); if (i >= 0) state.mi = i; state.sel = date; }
+  async function apiPost(body) {
+    var r = await fetch(SHEET_API, { method: 'POST', body: JSON.stringify(body) });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Save failed');
+    return j;
+  }
+  async function save(rec, existing, quiet) {
+    var id = existing ? existing.id : 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var isLocal = existing ? !!existing.local : !api;
+    if (!isLocal) { try { await apiPost({ action: 'save', event: Object.assign({ id: id }, rec) }); } catch (err) { isLocal = true; toast('Could not reach the shared calendar, so it was saved on this device.'); } }
+    if (isLocal) { rec.id = id; rec.local = true; localOwn = localOwn.filter(function (x) { return x.id !== id; }).concat([rec]); persistLocal(); }
+    else if (existing) own = own.map(function (x) { return x.id === id ? Object.assign({ id: id }, rec) : x; });
+    else own = own.concat([Object.assign({ id: id }, rec)]);
+    closeForm(); jump(rec.date);
+    var k = KIND[rec.kind] || KIND.event; state.on[k.layer] = true;
+    renderAll(); if (!isLocal) toast(quiet ? 'Added to the calendar' : existing ? 'Changes saved' : 'Added to the calendar');
+  }
+  async function moveEvent(id, from, to) {
+    var e = allOwn().find(function (x) { return x.id === id; }); if (!e || from === to) return;
+    var delta = diffDays(from, to), patch = { date: addDays(e.date, delta) };
+    if (e.endDate) patch.endDate = addDays(e.endDate, delta);
+    var msg = 'Moved to ' + MON[+patch.date.slice(5, 7) - 1] + ' ' + +patch.date.slice(8);
+    if (e.local) { Object.assign(e, patch); persistLocal(); renderAll(); toast(msg); return; }
+    var prev = { date: e.date, endDate: e.endDate }; Object.assign(e, patch); renderAll();
+    try { await apiPost({ action: 'move', id: id, date: patch.date, endDate: patch.endDate || '' }); toast(msg); }
+    catch (err) { Object.assign(e, prev); renderAll(); toast('Could not move that event. Try again.'); }
+  }
+  async function remove(id) {
+    var e = allOwn().find(function (x) { return x.id === id; }); if (!e) return;
+    if (e.local) { localOwn = localOwn.filter(function (x) { return x.id !== id; }); persistLocal(); renderAll(); return; }
+    try { await apiPost({ action: 'delete', id: id }); own = own.filter(function (x) { return x.id !== id; }); renderAll(); toast('Removed from the calendar'); } catch (err) { toast('Could not delete that one. Try again.'); }
+  }
+  async function loadShared() {
+    if (!api || drag || document.querySelector('.scrim')) return;
+    try {
+      var r = await fetch(SHEET_API + (SHEET_API.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now());
+      var j = await r.json();
+      if (j.ok) { own = j.events || []; loaded = true; renderAll(); }
+    } catch (err) { if (!loaded) toast('Could not load the shared calendar. Showing this device only.'); }
+  }
+
+  /* ================= MENU PAGE ================= */
+  function mi(x) { return '<div class="mi' + (x[3] ? ' hot' : '') + '"><h4>' + esc(x[0]) + (x[1] ? '<small>' + esc(x[1]) + '</small>' : '') + '</h4>' + (x[2] ? '<p>' + esc(x[2]) + '</p>' : '') + '</div>'; }
+  function ban(t, pr) { return '<div class="banner"><span class="st">&#9733;</span><h2>' + t + '</h2>' + (pr ? '<span class="pr">' + pr + '</span>' : '') + '<span class="st">&#9733;</span></div>'; }
+  function renderMenu() {
+    var s = MENU.smoker, sp = [1, 2, 3].map(function (d) { return '<div class="sp"><b>' + DOW[d] + '</b><span>' + esc(SPECIALS[d][1]) + '</span></div>'; }).join('');
+    $('pg-menu').innerHTML = '<p class="pageintro">Menu as printed on the boards at dutchmansbbq.com/menu. Use it for captions and to check prices before a post goes out.</p>' +
+      '<div class="specials">' + sp + '</div><div class="menu">' +
+      '<div class="msec">' + ban('From the smoker') + '<div class="msub">' + s.note + '</div>' + s.items.map(function (x) { return mi([x[0], x[1]]); }).join('') + mi([s.sampler[0], s.sampler[1], s.sampler[2], 1]) + '<div class="sidehead">Sides <small>4.99</small></div><div class="sides">' + s.sides.map(function (x, i) { return '<div' + (i === 2 ? ' class="new"' : '') + '>' + esc(x) + '</div>'; }).join('') + '</div></div>' +
+      '<div class="msec">' + ban('Dutchman’s BBQ bites') + MENU.bites.map(mi).join('') + '</div>' +
+      '<div class="msec">' + ban('BBQ sandwiches') + '<div class="msub">Choice of 1 side</div>' + MENU.sandwiches.map(mi).join('') + '</div>' +
+      '<div class="msec">' + ban('Salads &amp; BBQ stacks') + MENU.stacks.map(mi).join('') + '</div>' +
+      '<div class="msec">' + ban('Tacos', '11.99') + MENU.tacos.map(mi).join('') + '</div>' +
+      '<div class="msec">' + ban('Crispy &amp; crunchy') + MENU.crispy.map(mi).join('') + '</div>' +
+      '<div class="msec wide">' + ban('Dessert', '5.99') + '<div class="sides" style="grid-template-columns:repeat(3,minmax(0,1fr));border-style:solid">' + MENU.dessert.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') + '</div></div></div>' +
+      '<div class="cta"><a class="btn gold" href="https://order.toasttab.com/online/dutchmans-county-bbq-new-1615-n-apache-trail" target="_blank" rel="noopener">Order online</a><a class="btn ghost" href="https://www.dutchmansbbq.com/menu" target="_blank" rel="noopener">Menu on the website</a></div>' +
+      '<p class="fine">Consuming raw or undercooked meats may increase your risk of foodborne illness, especially if you have certain medical conditions. Phone (480) 625-1265.</p>';
+  }
+
+  /* ================= BANDS PAGE ================= */
+  function renderBands() {
+    var now = new Date(), ts = iso(now.getFullYear(), now.getMonth(), now.getDate());
+    var mine = allOwn().filter(function (e) { return e.kind === 'music'; }).map(function (e) { return Object.assign({ own: true }, e); });
+    var shows = MUSIC.concat(mine).sort(function (a, b) { return a.date === b.date ? (a.time < b.time ? -1 : 1) : (a.date < b.date ? -1 : 1); });
+    var up = shows.filter(function (s) { return (s.endDate || s.date) >= ts; }), past = shows.filter(function (s) { return (s.endDate || s.date) < ts; }).reverse();
+    function row(s, isPast) {
+      var dt = parse(s.date);
+      return '<div class="show' + (isPast ? ' past' : '') + '"><div class="dt"><span>' + DOW[dt.getUTCDay()].slice(0, 3) + '</span><b>' + dt.getUTCDate() + '</b><span>' + MON[dt.getUTCMonth()].slice(0, 3) + '</span></div><div><h4>' + esc(s.title) + '</h4><p>' + (s.time ? t12(s.time) + (s.endTime ? ' – ' + t12(s.endTime) : '') : 'Time to be announced') + (s.assumed ? ' &middot; <span class="badge warn" style="margin:0">Time not on website</span>' : '') + (s.notes ? ' &middot; ' + esc(s.notes) : '') + '</p></div>' +
+        (s.own ? '<div class="row"><button class="btn ghost small" data-edit="' + esc(s.id) + '">Edit</button><button class="btn danger small" data-del="' + esc(s.id) + '">Delete</button></div>' : '<div></div>') + '</div>';
+    }
+    var html = '', lastWk = '';
+    up.forEach(function (s) {
+      var dt = parse(s.date), mon = addDays(s.date, -((dt.getUTCDay() + 6) % 7)), wk = MON[+mon.slice(5, 7) - 1] + ' ' + +mon.slice(8);
+      if (mon !== lastWk) { lastWk = mon; html += '<div class="wk">Week of ' + wk + '</div>'; }
+      html += row(s, false);
+    });
+    $('pg-bands').innerHTML = ban('Live band schedule') +
+      '<div class="bandgrid"><div class="card"><h3>Coming up</h3><p class="note">From dutchmansbbq.com/event-list and the weekly schedule posts. Fri and Sat are usually 6 to 9 PM, Sunday 2 to 5 PM. The website lists dates but not times for Nov. 13 to 15, so those show the usual slot until you confirm.</p>' + (html || '<p class="empty">No upcoming shows yet. Add the next lineup.</p>') + '</div>' +
+      '<div><div class="card"><h3>Add a band</h3><p class="note">New shows land on the calendar and in this list.</p><button class="btn" data-addband="1">+ Add a show</button></div>' +
+      '<div class="card" style="margin-top:16px"><h3>Past shows</h3>' + (past.length ? past.map(function (s) { return row(s, true); }).join('') : '<p class="empty">None yet.</p>') + '</div></div></div>';
+  }
+
+
+  /* ================= PROFILE PAGE ================= */
+  function renderProfile() {
+    var hrs = [['Monday', '11 AM – 8 PM'], ['Tuesday', '11 AM – 8 PM'], ['Wednesday', '11 AM – 8 PM'], ['Thursday', '11 AM – 8 PM'], ['Friday', '11 AM – 10 PM'], ['Saturday', '11 AM – 10 PM'], ['Sunday', '11 AM – 8 PM']];
+    var links = [['Website', 'https://www.dutchmansbbq.com/', 'dutchmansbbq.com'], ['Instagram', 'https://www.instagram.com/dutchmansbbq', '@dutchmansbbq'], ['TikTok', 'https://www.tiktok.com/@dutchmanscountrybbq', '@dutchmanscountrybbq'], ['Facebook', 'https://www.facebook.com/dutchmanscountrybbq', 'dutchmanscountrybbq'], ['Order online', 'https://order.toasttab.com/online/dutchmans-county-bbq-new-1615-n-apache-trail', 'Toast ordering']];
+    var staff = [['Tom Misitano', 'Owner'], ['Clay Eager', ''], ['Kirk Stevens', ''], ['Shari Hardin', '']];
+    var camps = [['Monday special', 'Pulled Pork Sandwich + choice of side $9.99, $4 margaritas', 'Every Monday'], ['Tuesday tacos', '$3 off tacos', 'Every Tuesday'], ['Wednesday stuffed potato', '$3 off the DCB Loaded Potato', 'Every Wednesday'], ['Weekend music', 'Promote the Friday to Sunday lineup', 'Weekends'], ['Friday musician feature', 'Promote tonight’s artist', 'Fridays'], ['Sunday musician feature', 'Promote tonight’s artist', 'Sundays']];
+    var hol = [['Veterans Day', 'Wed, Nov 11', 'Not set'], ['Thanksgiving Day', 'Thu, Nov 26', 'Closed'], ['Cyber Monday', 'Mon, Nov 30', 'Not set'], ['Christmas Eve', 'Thu, Dec 24', 'Not set'], ['Christmas Day', 'Fri, Dec 25', 'Not set']];
+    var li = function (a, b, c) { return '<div class="prow"><span>' + a + '</span><b>' + b + '</b>' + (c ? '<em>' + c + '</em>' : '') + '</div>'; };
+    $('pg-profile').innerHTML = ban('Client profile') +
+      '<div class="prof">' +
+      '<div class="card"><h3>Basics</h3>' + li('Client', 'Dutchman’s Country BBQ') + li('Client under', 'Hospitality First') + li('Main contact', 'Clay Eager') + li('Restaurant phone', '(480) 625-1265') + li('Location', '1615 N Apache Trail<br>Apache Junction, AZ 85119') + '</div>' +
+      '<div class="card"><h3>Hours</h3>' + hrs.map(function (h) { return li(h[0], h[1]); }).join('') + '</div>' +
+      '<div class="card"><h3>Links</h3>' + links.map(function (l) { return li(l[0], '<a href="' + l[1] + '" target="_blank" rel="noopener">' + l[2] + '</a>'); }).join('') + '</div>' +
+      '<div class="card"><h3>Key staff</h3>' + staff.map(function (p) { return li(p[0], p[1] || '—'); }).join('') + '</div>' +
+      '<div class="card wide"><h3>Campaigns</h3><p class="note">Updated for October 2026.</p>' + camps.map(function (c) { return li(c[0], c[1], c[2]); }).join('') + '</div>' +
+      '<div class="card wide"><h3>Holidays &amp; observances</h3><p class="note">Open or closed is set per holiday. Add or change hours on the Calendar or Ideas page.</p>' + hol.map(function (c) { return li(c[0], c[1], c[2]); }).join('') + '</div>' +
+      '</div><p class="fine">Account logins and passwords are kept private and are not shown on this page.</p>';
+  }
+
+  /* ================= ROUTING / RENDER ================= */
+  function renderTabs() { $('tabs').innerHTML = PAGES.map(function (p) { return '<button role="tab" data-page="' + p[0] + '" aria-selected="' + (state.page === p[0]) + '"><span class="s">&#9733;</span>' + p[1] + '</button>'; }).join(''); }
+  function renderAll() {
+    renderTabs();
+    PAGES.forEach(function (p) { $('pg-' + p[0]).hidden = state.page !== p[0]; });
+    if (state.page === 'calendar') renderCalendar();
+    else if (state.page === 'ideas') { var keep = $('inline-form') && $('inline-form').contains(document.activeElement); if (!keep) renderIdeas(); else { refreshIdeaList(); } }
+    else if (state.page === 'menu') renderMenu();
+    else if (state.page === 'bands') renderBands();
+    else if (state.page === 'profile') renderProfile();
+  }
+  function refreshIdeaList() { /* keep a half-typed inline form: only re-render when focus is elsewhere */ }
+  function go(page) { state.page = page; renderAll(); window.scrollTo(0, 0); }
+
+  /* ================= EVENTS ================= */
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('button, .day'); if (!t) return; var ds = t.dataset;
+    if (ds.page) go(ds.page);
+    else if (ds.mi != null) { state.mi = +ds.mi; var m = MONTHS[state.mi]; state.sel = iso(m.y, m.m, 1); renderAll(); }
+    else if (ds.layer) { state.on[ds.layer] = !state.on[ds.layer]; renderAll(); }
+    else if (ds.date && t.classList.contains('day')) { state.sel = ds.date; if (ds.date.slice(0, 7) !== monthDates(state.mi).ym) jump(ds.date); renderAll(); }
+    else if (ds.add) openForm(ds.add);
+    else if (ds.addband) openForm(state.sel, { date: state.sel, kind: 'music', title: '', hours: '', time: '18:00', endTime: '21:00', endDate: '', notes: '' });
+    else if (ds.edit) { var e = allOwn().find(function (x) { return x.id === ds.edit; }); if (e) openForm(e.date, e); }
+    else if (ds.del) { if (ds.armed) remove(ds.del); else { ds.armed = '1'; t.textContent = 'Confirm delete'; setTimeout(function () { delete t.dataset.armed; if (t.isConnected) t.textContent = 'Delete'; }, 3000); } }
+    else if (ds.idea) addIdea(ds.idea);
+    else if (ds.unidea) { var o = ideaOwn(ds.unidea); if (o) remove(o.id); }
+    else if (ds.ideaFilter) { state.idea = ds.ideaFilter; renderIdeas(); }
+    else if (t.id === 'add-top') openForm(state.sel);
+    else if (t.id === 'v-cal') { state.view = 'cal'; renderAll(); }
+    else if (t.id === 'v-agenda') { state.view = 'agenda'; renderAll(); }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') closeForm();
+    if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.classList && ev.target.classList.contains('day')) { ev.preventDefault(); state.sel = ev.target.dataset.date; renderAll(); }
+  });
+  /* drag your own items to another day */
+  document.addEventListener('dragstart', function (ev) { var c = ev.target.closest && ev.target.closest('[data-drag]'); if (!c) return; drag = { id: c.dataset.drag, from: c.dataset.from }; ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', drag.id); } catch (e) {} });
+  document.addEventListener('dragover', function (ev) { var d = drag && ev.target.closest && ev.target.closest('.day'); if (!d) return; ev.preventDefault(); document.querySelectorAll('.day.drop').forEach(function (x) { if (x !== d) x.classList.remove('drop'); }); d.classList.add('drop'); });
+  document.addEventListener('drop', function (ev) { var d = drag && ev.target.closest && ev.target.closest('.day'); if (!d) return; ev.preventDefault(); var g = drag; drag = null; moveEvent(g.id, g.from, d.dataset.date); });
+  document.addEventListener('dragend', function () { drag = null; document.querySelectorAll('.day.drop').forEach(function (x) { x.classList.remove('drop'); }); });
+
+  /* ================= BOOT: Google Sheet when set up, this device otherwise ================= */
+  try { localOwn = JSON.parse(localStorage.getItem(LS) || '[]'); } catch (e) { localOwn = []; }
+  var h = (location.hash || '').replace('#', ''); if (PAGES.some(function (p) { return p[0] === h; })) state.page = h;
+  renderAll();
+  loadShared();
+  setInterval(loadShared, 60000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) loadShared(); });
+})();
+</script>
+</body>
+</html>
